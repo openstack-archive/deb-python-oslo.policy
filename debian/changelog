@@ -1,0 +1,5 @@
+python-oslo.policy (0.3.0-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #XXXXXX)
+
+ -- Thomas Goirand <zigo@debian.org>  Sun, 08 Mar 2015 23:32:30 +0100
