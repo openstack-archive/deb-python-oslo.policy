@@ -25,7 +25,7 @@ Build-Depends-Indep: python-hacking,
 Standards-Version: 3.9.6
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-oslo.policy.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-oslo.policy.git
-Homepage: http://launchpad.net/oslo.policy
+Homepage: https://github.com/openstack/oslo.policy
 
 Package: python-oslo.policy
 Architecture: all
