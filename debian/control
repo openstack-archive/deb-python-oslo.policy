@@ -40,6 +40,8 @@ Depends: python-oslo.config (>= 1:1.9.3),
          ${misc:Depends},
          ${python:Depends},
 Suggests: python-oslo.policy-doc,
+Breaks: python-oslo-policy (<< 0.5.0-1~),
+Replaces: python-oslo-policy (<< 0.5.0-1~),
 Description: RBAC policy enforcement library for OpenStack - Python 2.x
  Oslo.policy provides a Role Based Access Control policy enforcement library
  for OpenStack.
@@ -55,6 +57,8 @@ Depends: python3-oslo.config (>= 1:1.9.3),
          ${misc:Depends},
          ${python3:Depends},
 Suggests: python-oslo.policy-doc,
+Breaks: python3-oslo-policy (<< 0.5.0-1~),
+Replaces: python3-oslo-policy (<< 0.5.0-1~),
 Description: RBAC policy enforcement library for OpenStack - Python 3.x
  Oslo.policy provides a Role Based Access Control policy enforcement library
  for OpenStack.
@@ -72,3 +76,27 @@ Description: RBAC policy enforcement library for OpenStack - doc
  for OpenStack.
  .
  This package contains the documentation.
+
+Package: python-oslo-policy
+Section: oldlibs
+Architecture: all
+Depends: python-oslo.policy,
+         ${misc:Depends},
+Description: transitional dummy package for python-oslo-policy.
+ This transtional package is safe to remove.
+
+Package: python-oslo-policy-doc
+Section: oldlibs
+Architecture: all
+Depends: python-oslo.policy-doc,
+         ${misc:Depends},
+Description: transitional dummy package for python-oslo-policy-doc.
+ This transtional package is safe to remove.
+
+Package: python3-oslo-policy
+Section: oldlibs
+Architecture: all
+Depends: python3-oslo.policy,
+         ${misc:Depends},
+Description: transitional dummy package for python3-oslo-policy.
+ This transtional package is safe to remove.
