@@ -1,3 +1,10 @@
+python-oslo.policy (0.5.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release:
+    - d/control: Align versioned requirements with upstream.
+
+ -- James Page <james.page@ubuntu.com>  Wed, 03 Jun 2015 12:39:10 +0100
+
 python-oslo.policy (0.3.2-1) unstable; urgency=medium
 
   * Initial release. (Closes: #780593)
