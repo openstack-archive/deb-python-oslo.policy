@@ -23,9 +23,9 @@ from oslo_serialization import jsonutils
 from oslotest import base as test_base
 import six
 
+from oslo_policy import _cache_handler
 from oslo_policy import _checks
 from oslo_policy import _parser
-from oslo_policy.openstack.common import fileutils
 from oslo_policy import policy
 from oslo_policy.tests import base
 
@@ -149,9 +149,9 @@ class EnforcerTest(base.PolicyBaseTestCase):
 
     def check_loaded_files(self, filenames):
         self.assertEqual(
-            self.enforcer._loaded_files,
             [self.get_config_file_fullname(n)
-             for n in filenames]
+             for n in filenames],
+            self.enforcer._loaded_files
         )
 
     def test_load_file(self):
@@ -203,7 +203,9 @@ class EnforcerTest(base.PolicyBaseTestCase):
             'policy.d/a.conf',
         ])
 
-    def test_load_directory_caching_with_files_same(self):
+    def test_load_directory_caching_with_files_same(self, overwrite=True):
+        self.enforcer = policy.Enforcer(self.conf, overwrite=overwrite)
+
         self.create_config_file('policy.d/a.conf', POLICY_A_CONTENTS)
 
         self.enforcer.load_rules(False)
@@ -224,6 +226,9 @@ class EnforcerTest(base.PolicyBaseTestCase):
             'policy.json',
             'policy.d/a.conf',
         ])
+
+    def test_load_directory_caching_with_files_same_but_overwrite_false(self):
+        self.test_load_directory_caching_with_files_same(overwrite=False)
 
     def test_load_multiple_directories(self):
         self.create_config_file('policy.d/a.conf', POLICY_A_CONTENTS)
@@ -260,16 +265,14 @@ class EnforcerTest(base.PolicyBaseTestCase):
                           self.enforcer.set_rules,
                           'dummy')
 
-    @mock.patch.object(fileutils, 'delete_cached_file', mock.Mock())
+    @mock.patch.object(_cache_handler, 'delete_cached_file', mock.Mock())
     def test_clear(self):
         # Make sure the rules are reset
         self.enforcer.rules = 'spam'
-        filename = self.enforcer.policy_path
         self.enforcer.clear()
         self.assertEqual({}, self.enforcer.rules)
         self.assertEqual(None, self.enforcer.default_rule)
         self.assertEqual(None, self.enforcer.policy_path)
-        fileutils.delete_cached_file.assert_called_once_with(filename)
 
     def test_rule_with_check(self):
         rules_json = """{

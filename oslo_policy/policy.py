@@ -216,10 +216,10 @@ from oslo_config import cfg
 from oslo_serialization import jsonutils
 import six
 
+from oslo_policy import _cache_handler
 from oslo_policy import _checks
 from oslo_policy._i18n import _
 from oslo_policy import _parser
-from oslo_policy.openstack.common import fileutils
 from oslo_policy import opts
 
 
@@ -314,7 +314,7 @@ class Enforcer(object):
 
     :param conf: A configuration object.
     :param policy_file: Custom policy file to use, if none is
-                        specified, ``conf.policy_file`` will be
+                        specified, ``conf.oslo_policy.policy_file`` will be
                         used.
     :param rules: Default dictionary / Rules to use. It will be
                   considered just in the first instantiation. If
@@ -344,6 +344,7 @@ class Enforcer(object):
         self.overwrite = overwrite
         self._loaded_files = []
         self._policy_dir_mtimes = {}
+        self._file_cache = {}
 
     def set_rules(self, rules, overwrite=True, use_conf=False):
         """Create a new :class:`Rules` based on the provided dict of rules.
@@ -364,13 +365,17 @@ class Enforcer(object):
             self.rules.update(rules)
 
     def clear(self):
-        """Clears :class:`Enforcer` rules, policy's cache and policy's path."""
+        """Clears :class:`Enforcer` contents.
+
+        This will clear this instances rules, policy's cache, file cache
+        and policy's path.
+        """
         self.set_rules({})
-        fileutils.delete_cached_file(self.policy_path)
         self.default_rule = None
         self.policy_path = None
         self._loaded_files = []
         self._policy_dir_mtimes = {}
+        self._file_cache.clear()
 
     def load_rules(self, force_reload=False):
         """Loads policy_path's rules.
@@ -427,9 +432,9 @@ class Enforcer(object):
             func(os.path.join(path, policy_file), *args)
 
     def _load_policy_file(self, path, force_reload, overwrite=True):
-        reloaded, data = fileutils.read_cached_file(
-            path, force_reload=force_reload)
-        if reloaded or not self.rules or not overwrite:
+        reloaded, data = _cache_handler.read_cached_file(
+            self._file_cache, path, force_reload=force_reload)
+        if reloaded or not self.rules:
             rules = Rules.load_json(data, self.default_rule)
             self.set_rules(rules, overwrite=overwrite, use_conf=True)
             self._loaded_files.append(path)
@@ -493,7 +498,7 @@ class Enforcer(object):
                 # Evaluate the rule
                 result = self.rules[rule](target, creds, self)
             except KeyError:
-                LOG.debug('Rule [%s] does not exist' % rule)
+                LOG.debug('Rule [%s] does not exist', rule)
                 # If the rule doesn't exist, fail closed
                 result = False
 
