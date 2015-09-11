@@ -38,7 +38,6 @@ Homepage: https://github.com/openstack/oslo.policy
 
 Package: python-oslo.policy
 Architecture: all
-Pre-Depends: dpkg (>= 1.15.6~),
 Depends: python-oslo.config (>= 1:2.3.0),
          python-oslo.i18n (>= 1.5.0),
          python-oslo.serialization (>= 1.4.0),
@@ -57,7 +56,6 @@ Description: RBAC policy enforcement library for OpenStack - Python 2.x
 
 Package: python3-oslo.policy
 Architecture: all
-Pre-Depends: dpkg (>= 1.15.6~),
 Depends: python3-oslo.config (>= 1:2.3.0),
          python3-oslo.i18n (>= 1.5.0),
          python3-oslo.serialization (>= 1.4.0),
@@ -88,24 +86,27 @@ Description: RBAC policy enforcement library for OpenStack - doc
 
 Package: python-oslo-policy
 Section: oldlibs
+Priority: extra
 Architecture: all
 Depends: python-oslo.policy,
          ${misc:Depends},
-Description: transitional dummy package for python-oslo-policy.
+Description: transitional dummy package for python-oslo-policy
  This transitional package is safe to remove.
 
 Package: python-oslo-policy-doc
 Section: oldlibs
+Priority: extra
 Architecture: all
 Depends: python-oslo.policy-doc,
          ${misc:Depends},
-Description: transitional dummy package for python-oslo-policy-doc.
+Description: transitional dummy package for python-oslo-policy-doc
  This transitional package is safe to remove.
 
 Package: python3-oslo-policy
 Section: oldlibs
+Priority: extra
 Architecture: all
 Depends: python3-oslo.policy,
          ${misc:Depends},
-Description: transitional dummy package for python3-oslo-policy.
+Description: transitional dummy package for python3-oslo-policy
  This transitional package is safe to remove.
