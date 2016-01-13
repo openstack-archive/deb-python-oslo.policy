@@ -1,3 +1,10 @@
+python-oslo.policy (1.2.0-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Fixed (build-)depends for this release.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 13 Jan 2016 05:36:31 +0000
+
 python-oslo.policy (1.0.0-1) experimental; urgency=medium
 
   * New upstream release.
