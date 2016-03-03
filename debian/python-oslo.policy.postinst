@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "configure" ] ; then
+	update-alternatives --install /usr/bin/oslopolicy-checker oslopolicy-checker /usr/bin/python2-oslopolicy-checker 300
+fi
+
+#DEBHELPER#
+
+exit 0

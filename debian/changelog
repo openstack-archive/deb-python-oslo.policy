@@ -9,6 +9,7 @@ python-oslo.policy (1.5.0-1) experimental; urgency=medium
 
   [ Thomas Goirand ]
   * Standards-Version: 3.9.7 (no change).
+  * Using update-alternatives to maintain /usr/bin/oslopolicy-checker.
 
  -- Thomas Goirand <zigo@debian.org>  Thu, 03 Mar 2016 01:46:22 +0000
 

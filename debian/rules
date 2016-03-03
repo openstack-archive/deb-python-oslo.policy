@@ -21,6 +21,11 @@ override_dh_install:
 			--root $(CURDIR)/debian/python3-oslo.policy; \
 	done
 	rm -rf $(CURDIR)/debian/python*-oslo.policy/usr/lib/python*/dist-packages/*.pth
+	mv $(CURDIR)/debian/python-oslo.policy/usr/bin/oslopolicy-checker $(CURDIR)/debian/python-oslo.policy/usr/bin/python2-oslopolicy-checker
+	mv $(CURDIR)/debian/python3-oslo.policy/usr/bin/oslopolicy-checker $(CURDIR)/debian/python3-oslo.policy/usr/bin/python3-oslopolicy-checker
+
+override_dh_python3:
+	dh_python3 --shebang=/usr/bin/python3
 
 override_dh_auto_test:
 ifeq (,$(findstring nocheck, $(DEB_BUILD_OPTIONS)))
@@ -42,11 +47,9 @@ override_dh_sphinxdoc:
 	sphinx-build -b html doc/source debian/python-oslo.policy-doc/usr/share/doc/python-oslo.policy-doc/html
 	dh_sphinxdoc -O--buildsystem=python_distutils
 
-
 override_dh_clean:
 	dh_clean -O--buildsystem=python_distutils
 	rm -rf build
-
 
 # Commands not to run
 override_dh_installcatalogs:

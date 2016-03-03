@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "remove" ] ; then
+	update-alternatives --remove oslopolicy-checker /usr/bin/python3-oslopolicy-checker
+fi
+
+#DEBHELPER#
+
+exit 0
