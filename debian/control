@@ -36,7 +36,7 @@ Build-Depends-Indep: python-coverage,
                      python3-six (>= 1.9.0),
                      subunit,
                      testrepository,
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Vcs-Browser: https://anonscm.debian.org/cgit/openstack/python-oslo.policy.git/
 Vcs-Git: https://anonscm.debian.org/git/openstack/python-oslo.policy.git
 Homepage: https://github.com/openstack/oslo.policy
