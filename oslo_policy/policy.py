@@ -217,10 +217,12 @@ desired rule name.
 
 import logging
 import os
+import warnings
 
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 import six
+import yaml
 
 from oslo_policy import _cache_handler
 from oslo_policy import _checks
@@ -298,14 +300,39 @@ class Rules(dict):
     """A store for rules. Handles the default_rule setting directly."""
 
     @classmethod
-    def load_json(cls, data, default_rule=None):
-        """Allow loading of JSON rule data."""
+    def load(cls, data, default_rule=None):
+        """Allow loading of YAML/JSON rule data.
 
-        # Suck in the JSON data and parse the rules
-        rules = {k: _parser.parse_rule(v)
-                 for k, v in jsonutils.loads(data).items()}
+        .. versionadded:: 1.5.0
+
+        """
+
+        try:
+            parsed = yaml.safe_load(data)
+        except yaml.YAMLError as e:
+            # For backwards-compatibility, convert yaml error to ValueError,
+            # which is what JSON loader raised.
+            raise ValueError(six.text_type(e))
+
+        # Parse the rules
+        rules = {k: _parser.parse_rule(v) for k, v in parsed.items()}
 
         return cls(rules, default_rule)
+
+    @classmethod
+    def load_json(cls, data, default_rule=None):
+        """Allow loading of YAML/JSON rule data.
+
+        .. warning::
+            This method is deprecated as of the 1.5.0 release in favor of
+            :meth:`load` and may be removed in the 2.0 release.
+
+        """
+        warnings.warn(
+            'The load_json() method is deprecated as of the 1.5.0 release in '
+            'favor of load() and may be removed in the 2.0 release.',
+            DeprecationWarning)
+        return cls.load(data, default_rule)
 
     @classmethod
     def from_dict(cls, rules_dict, default_rule=None):
@@ -487,7 +514,7 @@ class Enforcer(object):
         reloaded, data = _cache_handler.read_cached_file(
             self._file_cache, path, force_reload=force_reload)
         if reloaded or not self.rules:
-            rules = Rules.load_json(data, self.default_rule)
+            rules = Rules.load(data, self.default_rule)
             self.set_rules(rules, overwrite=overwrite, use_conf=True)
             self._loaded_files.append(path)
             LOG.debug('Reloaded policy file: %(path)s', {'path': path})
