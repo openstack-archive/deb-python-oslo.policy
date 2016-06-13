@@ -1,6 +1,7 @@
 python-oslo.policy (1.9.0-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * d/control: Align (Build-)Depends with upstream.
 
  -- Corey Bryant <corey.bryant@canonical.com>  Mon, 13 Jun 2016 10:42:44 -0400
 
