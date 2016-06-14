@@ -4,6 +4,7 @@ set -e
 
 if [ "$1" = "remove" ] || [ "$1" = "disappear" ] ; then
 	update-alternatives --remove oslopolicy-checker /usr/bin/python3-oslopolicy-checker
+	update-alternatives --remove oslopolicy-sample-generator /usr/bin/python3-oslopolicy-sample-generator
 fi
 
 #DEBHELPER#

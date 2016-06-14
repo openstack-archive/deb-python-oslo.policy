@@ -1,9 +1,13 @@
 python-oslo.policy (1.9.0-1) UNRELEASED; urgency=medium
 
+  [ Corey Bryant ]
   * New upstream release.
   * d/control: Align (Build-)Depends with upstream.
 
- -- Corey Bryant <corey.bryant@canonical.com>  Mon, 13 Jun 2016 10:42:44 -0400
+  [ Ivan Udovichenko ]
+  * Process new oslopolicy-sample-generator binary in scripts.
+
+ -- Ivan Udovichenko <iudovichenko@mirantis.com>  Tue, 14 Jun 2016 15:49:04 +0300
 
 python-oslo.policy (1.8.0-1) experimental; urgency=medium
 

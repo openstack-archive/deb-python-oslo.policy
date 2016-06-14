@@ -4,6 +4,7 @@ set -e
 
 if [ "$1" = "configure" ] ; then
 	update-alternatives --install /usr/bin/oslopolicy-checker oslopolicy-checker /usr/bin/python2-oslopolicy-checker 300
+	update-alternatives --install /usr/bin/oslopolicy-sample-generator oslopolicy-sample-generator /usr/bin/python2-oslopolicy-sample-generator 300
 fi
 
 #DEBHELPER#
