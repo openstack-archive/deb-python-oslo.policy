@@ -9,12 +9,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import operator
 import sys
 
 import fixtures
 import mock
 from oslo_config import cfg
 from six import moves
+import stevedore
 import testtools
 
 from oslo_policy import generator
@@ -46,17 +48,23 @@ class GenerateSampleTestCase(base.PolicyBaseTestCase):
         self.useFixture(fixtures.MonkeyPatch('sys.stdout', moves.StringIO()))
         return sys.stdout
 
-    @mock.patch('stevedore.named.NamedExtensionManager')
-    def test_generate_loadable_yaml(self, mock_named_mgr):
-        mock_eps = []
+    def test_generate_loadable_yaml(self):
+        extensions = []
         for name, opts in OPTS.items():
-            mock_ep = mock.Mock()
-            mock_ep.configure_mock(name=name, obj=opts)
-            mock_eps.append(mock_ep)
-        mock_named_mgr.return_value = mock_eps
+            ext = stevedore.extension.Extension(name=name, entry_point=None,
+                                                plugin=None, obj=opts)
+            extensions.append(ext)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=extensions, namespace=['base_rules', 'rules'])
 
         output_file = self.get_config_file_fullname('policy.yaml')
-        generator._generate_sample(['base_rules', 'rules'], output_file)
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr) as mock_ext_mgr:
+            generator._generate_sample(['base_rules', 'rules'], output_file)
+            mock_ext_mgr.assert_called_once_with(
+                'oslo.policy.policies', names=['base_rules', 'rules'],
+                on_load_failure_callback=generator.on_load_failure_callback,
+                invoke_on_load=True)
 
         self.enforcer.load_rules()
 
@@ -69,14 +77,14 @@ class GenerateSampleTestCase(base.PolicyBaseTestCase):
         self.assertEqual('(rule:admin or rule:owner)',
                          str(self.enforcer.rules['admin_or_owner']))
 
-    @mock.patch('stevedore.named.NamedExtensionManager')
-    def test_expected_content(self, mock_named_mgr):
-        mock_eps = []
+    def test_expected_content(self):
+        extensions = []
         for name, opts in OPTS.items():
-            mock_ep = mock.Mock()
-            mock_ep.configure_mock(name=name, obj=opts)
-            mock_eps.append(mock_ep)
-        mock_named_mgr.return_value = mock_eps
+            ext = stevedore.extension.Extension(name=name, entry_point=None,
+                                                plugin=None, obj=opts)
+            extensions.append(ext)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=extensions, namespace=['base_rules', 'rules'])
 
         expected = '''# Basic admin check
 "admin": "is_admin:True"
@@ -89,21 +97,27 @@ class GenerateSampleTestCase(base.PolicyBaseTestCase):
 "admin_or_owner": "rule:admin or rule:owner"
 '''
         output_file = self.get_config_file_fullname('policy.yaml')
-        generator._generate_sample(['base_rules', 'rules'], output_file)
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr) as mock_ext_mgr:
+            generator._generate_sample(['base_rules', 'rules'], output_file)
+            mock_ext_mgr.assert_called_once_with(
+                'oslo.policy.policies', names=['base_rules', 'rules'],
+                on_load_failure_callback=generator.on_load_failure_callback,
+                invoke_on_load=True)
 
         with open(output_file, 'r') as written_file:
             written_policy = written_file.read()
 
         self.assertEqual(expected, written_policy)
 
-    @mock.patch('stevedore.named.NamedExtensionManager')
-    def test_expected_content_stdout(self, mock_named_mgr):
-        mock_eps = []
+    def test_expected_content_stdout(self):
+        extensions = []
         for name, opts in OPTS.items():
-            mock_ep = mock.Mock()
-            mock_ep.configure_mock(name=name, obj=opts)
-            mock_eps.append(mock_ep)
-        mock_named_mgr.return_value = mock_eps
+            ext = stevedore.extension.Extension(name=name, entry_point=None,
+                                                plugin=None, obj=opts)
+            extensions.append(ext)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=extensions, namespace=['base_rules', 'rules'])
 
         expected = '''# Basic admin check
 "admin": "is_admin:True"
@@ -116,7 +130,14 @@ class GenerateSampleTestCase(base.PolicyBaseTestCase):
 "admin_or_owner": "rule:admin or rule:owner"
 '''
         stdout = self._capture_stdout()
-        generator._generate_sample(['base_rules', 'rules'], output_file=None)
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr) as mock_ext_mgr:
+            generator._generate_sample(['base_rules', 'rules'],
+                                       output_file=None)
+            mock_ext_mgr.assert_called_once_with(
+                'oslo.policy.policies', names=['base_rules', 'rules'],
+                on_load_failure_callback=generator.on_load_failure_callback,
+                invoke_on_load=True)
 
         self.assertEqual(expected, stdout.getvalue())
 
@@ -148,3 +169,118 @@ class GeneratorRaiseErrorTestCase(testtools.TestCase):
         with mock.patch('sys.argv', testargs):
             self.assertRaises(cfg.RequiredOptError, generator.generate_sample,
                               [])
+
+
+class GeneratePolicyTestCase(base.PolicyBaseTestCase):
+    def setUp(self):
+        super(GeneratePolicyTestCase, self).setUp()
+
+    def test_merged_rules(self):
+        extensions = []
+        for name, opts in OPTS.items():
+            ext = stevedore.extension.Extension(name=name, entry_point=None,
+                                                plugin=None, obj=opts)
+            extensions.append(ext)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=extensions, namespace=['base_rules', 'rules'])
+
+        # Write the policy file for an enforcer to load
+        sample_file = self.get_config_file_fullname('policy-sample.yaml')
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr):
+            generator._generate_sample(['base_rules', 'rules'], sample_file)
+
+        enforcer = policy.Enforcer(self.conf, policy_file='policy-sample.yaml')
+        # register an opt defined in the file
+        enforcer.register_default(policy.RuleDefault('admin',
+                                                     'is_admin:False'))
+        # register a new opt
+        enforcer.register_default(policy.RuleDefault('foo', 'role:foo'))
+
+        # Mock out stevedore to return the configured enforcer
+        ext = stevedore.extension.Extension(name='testing', entry_point=None,
+                                            plugin=None, obj=enforcer)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=[ext], namespace='testing')
+
+        # Generate a merged file
+        merged_file = self.get_config_file_fullname('policy-merged.yaml')
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr) as mock_ext_mgr:
+            generator._generate_policy(namespace='testing',
+                                       output_file=merged_file)
+            mock_ext_mgr.assert_called_once_with(
+                'oslo.policy.enforcer', names=['testing'],
+                on_load_failure_callback=generator.on_load_failure_callback,
+                invoke_on_load=True)
+
+        # load the merged file with a new enforcer
+        merged_enforcer = policy.Enforcer(self.conf,
+                                          policy_file='policy-merged.yaml')
+        merged_enforcer.load_rules()
+        for rule in ['admin', 'owner', 'admin_or_owner', 'foo']:
+            self.assertIn(rule, merged_enforcer.rules)
+
+        self.assertEqual('is_admin:True', str(merged_enforcer.rules['admin']))
+        self.assertEqual('role:foo', str(merged_enforcer.rules['foo']))
+
+
+class ListRedundantTestCase(base.PolicyBaseTestCase):
+    def setUp(self):
+        super(ListRedundantTestCase, self).setUp()
+
+    def _capture_stdout(self):
+        self.useFixture(fixtures.MonkeyPatch('sys.stdout', moves.StringIO()))
+        return sys.stdout
+
+    def test_matched_rules(self):
+        extensions = []
+        for name, opts in OPTS.items():
+            ext = stevedore.extension.Extension(name=name, entry_point=None,
+                                                plugin=None, obj=opts)
+            extensions.append(ext)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=extensions, namespace=['base_rules', 'rules'])
+
+        # Write the policy file for an enforcer to load
+        sample_file = self.get_config_file_fullname('policy-sample.yaml')
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr):
+            generator._generate_sample(['base_rules', 'rules'], sample_file)
+
+        enforcer = policy.Enforcer(self.conf, policy_file='policy-sample.yaml')
+        # register opts that match those defined in policy-sample.yaml
+        enforcer.register_default(policy.RuleDefault('admin', 'is_admin:True'))
+        enforcer.register_default(
+            policy.RuleDefault('owner', 'project_id:%(project_id)s'))
+        # register a new opt
+        enforcer.register_default(policy.RuleDefault('foo', 'role:foo'))
+
+        # Mock out stevedore to return the configured enforcer
+        ext = stevedore.extension.Extension(name='testing', entry_point=None,
+                                            plugin=None, obj=enforcer)
+        test_mgr = stevedore.named.NamedExtensionManager.make_test_instance(
+            extensions=[ext], namespace='testing')
+
+        stdout = self._capture_stdout()
+        with mock.patch('stevedore.named.NamedExtensionManager',
+                        return_value=test_mgr) as mock_ext_mgr:
+            generator._list_redundant(namespace='testing')
+            mock_ext_mgr.assert_called_once_with(
+                'oslo.policy.enforcer', names=['testing'],
+                on_load_failure_callback=generator.on_load_failure_callback,
+                invoke_on_load=True)
+
+        matches = [line.split(': ', 1) for
+                   line in stdout.getvalue().splitlines()]
+        matches.sort(key=operator.itemgetter(0))
+
+        # Should be 'admin'
+        opt0 = matches[0]
+        self.assertEqual('"admin"', opt0[0])
+        self.assertEqual('"is_admin:True"', opt0[1])
+
+        # Should be 'owner'
+        opt1 = matches[1]
+        self.assertEqual('"owner"', opt1[0])
+        self.assertEqual('"project_id:%(project_id)s"', opt1[1])
