@@ -6,6 +6,7 @@ python-oslo.policy (1.11.0-1) experimental; urgency=medium
   [ Thomas Goirand ]
   * Drop the python{3,}-oslo-* packages, useless since Xenial is released.
   * Switch to pkgos-dh_auto_{test,install}.
+  * Update maint scripts as there's more /usr/bin/* scripts from upstream.
 
  -- Thomas Goirand <zigo@debian.org>  Fri, 01 Jul 2016 19:04:29 +0000
 

@@ -3,8 +3,10 @@
 set -e
 
 if [ "$1" = "remove" ] ; then
-	update-alternatives --remove oslopolicy-checker /usr/bin/python2-oslopolicy-checker
 	update-alternatives --remove oslopolicy-sample-generator /usr/bin/python2-oslopolicy-sample-generator
+	update-alternatives --remove oslopolicy-checker /usr/bin/python2-oslopolicy-checker
+	update-alternatives --remove oslopolicy-policy-generator /usr/bin/python2-oslopolicy-policy-generator
+	update-alternatives --remove oslopolicy-list-redundant /usr/bin/python2-oslopolicy-list-redundant
 fi
 
 #DEBHELPER#
