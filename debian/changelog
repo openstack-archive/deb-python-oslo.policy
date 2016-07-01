@@ -1,8 +1,12 @@
-python-oslo.policy (1.11.0-1) UNRELEASED; urgency=medium
+python-oslo.policy (1.11.0-1) experimental; urgency=medium
 
+  [ David Della Vecchia ]
   * New upstream release.
 
- -- David Della Vecchia <ddv@canonical.com>  Thu, 30 Jun 2016 11:10:23 -0400
+  [ Thomas Goirand ]
+  * Drop the python{3,}-oslo-* packages, useless since Xenial is released.
+
+ -- Thomas Goirand <zigo@debian.org>  Fri, 01 Jul 2016 19:04:29 +0000
 
 python-oslo.policy (1.9.0-1) experimental; urgency=medium
 

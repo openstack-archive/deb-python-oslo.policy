@@ -95,30 +95,3 @@ Description: RBAC policy enforcement library for OpenStack - doc
  for OpenStack.
  .
  This package contains the documentation.
-
-Package: python-oslo-policy
-Section: oldlibs
-Priority: extra
-Architecture: all
-Depends: python-oslo.policy,
-         ${misc:Depends},
-Description: transitional dummy package for python-oslo-policy
- This transitional package to python-oslo.policy is safe to remove.
-
-Package: python-oslo-policy-doc
-Section: oldlibs
-Priority: extra
-Architecture: all
-Depends: python-oslo.policy-doc,
-         ${misc:Depends},
-Description: transitional dummy package for python-oslo-policy-doc
- This transitional package to python-oslo.policy-doc is safe to remove.
-
-Package: python3-oslo-policy
-Section: oldlibs
-Priority: extra
-Architecture: all
-Depends: python3-oslo.policy,
-         ${misc:Depends},
-Description: transitional dummy package for python3-oslo-policy
- This transitional package to python3-oslo.policy is safe to remove.
