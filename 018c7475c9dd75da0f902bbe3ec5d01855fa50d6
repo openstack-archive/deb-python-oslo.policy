@@ -1,0 +1,8 @@
+Code-Review+2: Steve Martinelli <s.martinelli@gmail.com>
+Workflow+1: Joshua Harlow <jxharlow@godaddy.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Thu, 01 Sep 2016 08:01:44 +0000
+Reviewed-on: https://review.openstack.org/362374
+Project: openstack/deb-python-oslo.policy
+Branch: refs/heads/stable/newton
