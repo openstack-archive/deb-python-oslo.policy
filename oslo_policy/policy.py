@@ -127,6 +127,11 @@ attributes obtained through a token:
     - domain_id or project_id (depending on the token scope)
     - list of roles held for the given token scope
 
+.. note:: Some resources which are exposed by the API do not support policy
+enforcement by user_id, and only support policy enforcement by project_id.
+Some global resources do not support policy enforcement by combination of
+user_id and project_id.
+
 For example, a check on the user_id would be defined as::
 
     user_id:<some_value>
@@ -449,6 +454,7 @@ class Enforcer(object):
         self._loaded_files = []
         self._policy_dir_mtimes = {}
         self._file_cache = {}
+        self._informed_no_policy_file = False
 
     def set_rules(self, rules, overwrite=True, use_conf=False):
         """Create a new :class:`Rules` based on the provided dict of rules.
@@ -482,6 +488,7 @@ class Enforcer(object):
         self._file_cache.clear()
         self.registered_rules = {}
         self.file_rules = {}
+        self._informed_no_policy_file = False
 
     def load_rules(self, force_reload=False):
         """Loads policy_path's rules.
@@ -496,10 +503,17 @@ class Enforcer(object):
 
         if self.use_conf:
             if not self.policy_path:
-                self.policy_path = self._get_policy_path(self.policy_file)
+                try:
+                    self.policy_path = self._get_policy_path(self.policy_file)
+                except cfg.ConfigFilesNotFoundError:
+                    if not self._informed_no_policy_file:
+                        LOG.debug('The policy file %s could not be found.',
+                                  self.policy_file)
+                        self._informed_no_policy_file = True
 
-            self._load_policy_file(self.policy_path, force_reload,
-                                   overwrite=self.overwrite)
+            if self.policy_path:
+                self._load_policy_file(self.policy_path, force_reload,
+                                       overwrite=self.overwrite)
             for path in self.conf.oslo_policy.policy_dirs:
                 try:
                     path = self._get_policy_path(path)
