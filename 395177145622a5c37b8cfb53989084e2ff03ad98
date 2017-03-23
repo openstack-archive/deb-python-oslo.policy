@@ -1,0 +1,9 @@
+Code-Review+2: Lance Bragstad <lbragstad@gmail.com>
+Code-Review+2: Davanum Srinivas (dims) <davanum@gmail.com>
+Workflow+1: Davanum Srinivas (dims) <davanum@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 20 Mar 2017 03:41:37 +0000
+Reviewed-on: https://review.openstack.org/447041
+Project: openstack/deb-python-oslo.policy
+Branch: refs/heads/master

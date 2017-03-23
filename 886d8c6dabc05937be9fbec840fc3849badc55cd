@@ -1,0 +1,10 @@
+Code-Review+1: Gage Hugo <gagehugo@gmail.com>
+Code-Review+2: Lance Bragstad <lbragstad@gmail.com>
+Code-Review+2: ChangBo Guo(gcb) <glongwave@gmail.com>
+Workflow+1: ChangBo Guo(gcb) <glongwave@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 21 Mar 2017 03:11:19 +0000
+Reviewed-on: https://review.openstack.org/446608
+Project: openstack/deb-python-oslo.policy
+Branch: refs/heads/master
